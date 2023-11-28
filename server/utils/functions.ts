@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 import mysql from "mysql";
 dotenv.config({ path: "../.env" });
-
-import validator from "validator";
-import bcrypt from "bcrypt";
 import { Response } from "express";
+import { MailOptions } from "nodemailer/lib/sendmail-transport";
+import { Transporter } from "nodemailer";
+import nodemailer from "nodemailer";
 
 const generateRandomId = function (): string {
   let randomValues: string =
@@ -15,30 +15,45 @@ const generateRandomId = function (): string {
     .join("");
 };
 
-const hash = async (string: string): Promise<string> => {
-  try {
-    if (!validator.isEmpty(string)) {
-      return await bcrypt.hash(string, Number(process.env.HASH_SECRET));
+const transporter: Transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.USER,
+    pass: process.env.PASS,
+  },
+});
+
+const sendEmail = (from: string, subject: string, to: string, html: any) => {
+  const mailOptions: MailOptions = {
+    from: from + " <ushengineering@gmail.com>",
+    to,
+    subject,
+    html,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log("Error in sending email  " + error);
+      return true;
+    } else {
+      console.log("Email sent: " + info.response);
+      return false;
     }
-    return Promise.reject("String passed in is empty");
-  } catch (error) {
-    console.log(error);
-    return Promise.reject("String passed in is empty");
-  }
+  });
 };
-const compareHash = async (
-  string1: string,
-  string2: string
-): Promise<boolean> => {
-  try {
-    if (!validator.isEmpty(string1) && !validator.isEmpty(string2)) {
-      return await bcrypt.compare(string1, string2);
-    } else return Promise.reject("Strings are empty");
-  } catch (error) {
-    console.log(error);
-    return Promise.reject(error);
-  }
-};
+
+sendEmail(
+  "Ush Engineering Team",
+  "verify your email",
+  "segunade041@gmail.com",
+  "<p>Click on the fucking link <a href='http://localhost:5000/verify_link?token=" +
+    generateRandomId() +
+    ">click here</a></p>"
+);
+
 const returnJSONSuccess = (
   responseObject: Response,
   rest?: object | undefined,
@@ -64,11 +79,6 @@ const returnJSONError = (
   });
 };
 
-type get_empty = {
-  name: string;
-  id: number | string;
-};
-
 const escape = (value: any) => mysql.escape(value);
 const checkIfEmpty = (values: object[]): string[] => {
   let errors: string[] = [];
@@ -82,10 +92,9 @@ const checkIfEmpty = (values: object[]): string[] => {
   return errors;
 };
 export {
-  compareHash,
-  hash,
   generateRandomId,
   returnJSONSuccess,
   returnJSONError,
   checkIfEmpty,
+  escape,
 };

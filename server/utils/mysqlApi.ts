@@ -1,11 +1,6 @@
 import connection from "../config/conn";
 import validator from "validator";
-import {
-  flattenUpdateObjectToSql,
-  flattenDeleteObjectToSql,
-} from "./functions";
 import mysql, { Connection } from "mysql";
-import { PayrollData } from "./mysqlfunction";
 type TableType = string;
 class dbQueries {
   connection: Connection;
@@ -42,13 +37,13 @@ class dbQueries {
 
         condition.push(param?.condition || null);
       });
-     
+
       for (let i = 0; i < columnNames.length; i++) {
         qry += `${columnNames[i]} ${dataType[i].toUpperCase()}${
           dataTypeLength[i] || ""
         } ${condition[i] || ""} ${i === columnNames.length - 1 ? "" : ","} `;
       }
-      
+
       query_string = `CREATE TABLE IF NOT EXISTS ${table} (id INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, ${qry}, last_modified TIMESTAMP NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`;
       this.connection.query(query_string, (err, data) => {
         if (err) {
@@ -97,7 +92,7 @@ class dbQueries {
         err ? reject(err) : resolve(data);
       });
     });
-  }
+  };
 }
 
 const db = new dbQueries(connection);
