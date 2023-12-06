@@ -43,7 +43,7 @@ const sessionConfig = {
     },
 };
 exports.sessionConfig = sessionConfig;
-let origins = ["http://localhost:3000"];
+let origins = ["http://127.0.0.1:5500", "http://localhost:5500"];
 const corsConfig = {
     origin: origins,
     credentials: true,

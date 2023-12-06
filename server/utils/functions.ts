@@ -26,33 +26,31 @@ const transporter: Transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = (from: string, subject: string, to: string, html: any) => {
+const sendEmail = async (
+  from: string,
+  subject: string,
+  to: string,
+  html: any
+) => {
   const mailOptions: MailOptions = {
     from: from + " <ushengineering@gmail.com>",
     to,
     subject,
     html,
   };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log("Error in sending email  " + error);
-      return true;
-    } else {
-      console.log("Email sent: " + info.response);
-      return false;
-    }
-  });
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    return {
+      status: true,
+      message: result,
+    };
+  } catch (error) {
+    return {
+      status: false,
+      message: error,
+    };
+  }
 };
-
-sendEmail(
-  "Ush Engineering Team",
-  "verify your email",
-  "segunade041@gmail.com",
-  "<p>Click on the fucking link <a href='http://localhost:5000/verify_link?token=" +
-    generateRandomId() +
-    ">click here</a></p>"
-);
 
 const returnJSONSuccess = (
   responseObject: Response,
@@ -78,23 +76,80 @@ const returnJSONError = (
     ...rest,
   });
 };
-
+const randomOTP = (repeatNumber: number = 5) =>
+  Math.floor(Math.random() * parseInt("9".repeat(repeatNumber)));
 const escape = (value: any) => mysql.escape(value);
-const checkIfEmpty = (values: object[]): string[] => {
-  let errors: string[] = [];
-  values.forEach((value) => {
-    let objValues = Object.values(value)[0] || null;
-    if (objValues === "" || objValues === null || objValues === undefined) {
-      let objKey = Object.keys(value);
-      errors.push(`${objKey[0]} should not be empty`);
+const checkIfEmpty = <T>(...values: T[]): (string | undefined | boolean)[] => {
+  let array_of_errors: (string | undefined | boolean)[] = [];
+
+  values.forEach((value, i) => {
+    if (value) {
+      if (typeof value === "string") {
+        if (value === "" || value === null || value === undefined) {
+          array_of_errors.push(true);
+        }
+      }
+      if (typeof value === "object") {
+        for (const key in value) {
+          if (
+            value[key] === "" ||
+            value[key] === null ||
+            value[key] === undefined
+          ) {
+            array_of_errors.push(`${key} is required`);
+          }
+        }
+      }
+    } else {
+      array_of_errors.push(true);
     }
   });
-  return errors;
+  return array_of_errors;
 };
+export const resetPasswordTemplate = (email: string, OTP: number | string) => `
+<div
+style="
+  padding: 1rem;
+  background: transparent;
+  color: black;
+text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+"
+>
+<div style=" width: fit-content; padding: 1rem; background-color: white; border-radius: 10px;border: 1px solid #222222; margin: 0 auto;">
+  <h3 style="padding-left: 0.5rem">Trouble signing in?</h3>
+  <p ">
+    We've received a request to reset the password for this user account
+  </p>
+  <br />
+  <a
+    href="http://localhost:5500/frontend/resetPassword.html?user=${email}&vc=${OTP}"
+    style="
+      padding: 0.6rem 1rem;
+      background-color: #3a95c9;
+      text-decoration: none;
+      color: white;
+      border-radius: 5px;
+      font-size: small;
+      margin: 0 auto;
+    "
+    >Reset your password</a
+  >
+  <p style="margin-top: 2.5rem; font-size: small">
+    If you didn't ask to reset your password, you can ignore this email
+  </p>
+  <p style="font-size: small; margin-top: 0.5rem">
+    Thanks <br />
+    Ush Engineering Team
+  </p>
+</div>
+</div>`;
 export {
   generateRandomId,
   returnJSONSuccess,
   returnJSONError,
   checkIfEmpty,
+  randomOTP,
   escape,
+  sendEmail,
 };
