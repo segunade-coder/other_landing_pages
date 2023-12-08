@@ -11,21 +11,7 @@ togglePassword.addEventListener("click", function (e) {
     type === "password" ? "images/eye-slash.svg" : "images/eye-slash.svg";
 });
 
-passwordInput.addEventListener("input", function () {
-  const passwordValue = passwordInput.value;
-  const pattern =
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-  const isValidPassword = pattern.test(passwordValue);
 
-  if (!isValidPassword) {
-    passwordInput.setCustomValidity(
-      "Password must contain at least 8 characters, including one letter, one number, and one special character."
-    );
-  } else {
-    passwordInput.setCustomValidity("");
-  }
-  passwordInput.reportValidity();
-});
 document.getElementById("loginForm").addEventListener("submit", login);
 function login(event) {
   event.preventDefault();

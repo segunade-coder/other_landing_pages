@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmail = exports.escape = exports.randomOTP = exports.checkIfEmpty = exports.returnJSONError = exports.returnJSONSuccess = exports.generateRandomId = exports.resetPasswordTemplate = void 0;
+exports.sendEmail = exports.escape = exports.randomOTP = exports.checkIfEmpty = exports.returnJSONError = exports.returnJSONSuccess = exports.generateRandomId = exports.verifyEmailTemplate = exports.resetPasswordTemplate = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 const mysql_1 = __importDefault(require("mysql"));
 dotenv_1.default.config({ path: "../.env" });
@@ -35,7 +35,7 @@ const transporter = nodemailer_1.default.createTransport({
         pass: process.env.PASS,
     },
 });
-const sendEmail = (from, subject, to, html) => __awaiter(void 0, void 0, void 0, function* () {
+const sendEmail = (from = "Ush Engineering Team", subject, to, html) => __awaiter(void 0, void 0, void 0, function* () {
     const mailOptions = {
         from: from + " <ushengineering@gmail.com>",
         to,
@@ -136,3 +136,12 @@ text-align: center;
 </div>
 </div>`;
 exports.resetPasswordTemplate = resetPasswordTemplate;
+const verifyEmailTemplate = (OTP) => `
+<div style="padding:1rem;">
+<h4>Verify your email address.</h4>
+<p>To verify your email address, please use the following One-Time-Password (OTP)</p>
+<h2 style="padding: 1rem 0;">${OTP}</h2>
+<p>Do not share this OTP with anyone. This OTP is rendered invalid after 10 minutes.</p>
+</div>
+`;
+exports.verifyEmailTemplate = verifyEmailTemplate;

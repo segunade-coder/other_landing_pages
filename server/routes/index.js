@@ -10,5 +10,5 @@ const route_3 = __importDefault(require("./rep/route"));
 const router = (0, express_1.Router)();
 router.use("/login", route_1.default);
 router.use("/rep", route_3.default);
-router.use("/sign-up", route_2.default);
+router.use("/signup", route_2.default);
 exports.default = router;

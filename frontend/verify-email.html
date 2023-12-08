@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Forgot Password</title>
+    <title>Verify Email Address</title>
     <link rel="stylesheet" href="main.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,8 +45,8 @@
 
       <div class="text-center mt-4 pt-5">
         <div class="container">
-          <h2>Password Reset</h2>
-          <form id="resetPasswordForm">
+          <h2>Email Verification</h2>
+          <form id="verifyEmailForm">
             <div>
               <label for="email">Email:</label>
               <input
@@ -59,7 +59,7 @@
             </div>
             <div>
               <button type="submit" class="mt-4 btn btn-primary text-white">
-                Reset Password
+                Send Code
               </button>
             </div>
           </form>
@@ -69,13 +69,13 @@
 
     <script>
       document
-        .getElementById("resetPasswordForm")
+        .getElementById("verifyEmailForm")
         .addEventListener("submit", function (event) {
           event.preventDefault();
 
           const email = document.getElementById("email").value;
           // Sending the data via fetch API
-          fetch("http://localhost:3001/login/reset-password", {
+          fetch("http://localhost:3001/signup/verify-email", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -88,6 +88,8 @@
                 alert(
                   "A verification link has been sent to your email address."
                 );
+                location.href =
+                  "http://localhost:5500/frontend/OTP.html" + data.message;
               } else {
                 alert(data.message);
               }

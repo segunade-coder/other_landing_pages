@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@400;500&family=Montserrat:wght@400;600;700;800&family=Poppins:wght@300;400;500&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dependencies/bootstrap-5.3.2-dist/css/bootstrap.min.css">
+
 </head>
 <body>
 
@@ -44,10 +46,10 @@
                         <div class=" form-container">
                             <form id="userRegistrationForm">
                                 <label for="email" class="form-label d-flex justify-content">Email</label>
-                                <div class="mb-3"><input type="text" class="form-control" id="email" name="email" value="hello@gmail.com" placeholder="hello@gmail.com" required></div>
+                                <div class="mb-3"><input type="text" class="form-control" id="email" name="email" readonly placeholder="hello@gmail.com" required></div>
                                 <label for="text" class="form-label d-flex justify-content">Username</label>
                                 <div class="mb-3">
-                                    <input type="text" class="form-control"  id="userName" name="userName" value="username" placeholder="username"  required>
+                                    <input type="text" class="form-control"  id="userName" name="userName" placeholder="username"  required>
                                 </div>
                                 
                                 
@@ -55,7 +57,7 @@
                                     <label for="passwordInput" class="d-flex">Password</label>
                                     <div class="input-group">
                                         <input type="password" id="password" name="password" required class="form-control" placeholder="" required >
-                                        <button class="btn btn-light" id="togglePassword" type="button">
+                                        <button class="btn btn-light" id="toggleLoginPassword" type="button">
                                             <img src="images/eye-slash.svg" alt="Toggle Password">
                                         </button>
                                     </div>
@@ -66,7 +68,7 @@
                                     <label for="passwordInput" class="d-flex">Confirm Password</label>
                                     <div class="input-group">
                                         <input  type="password" id="confirmPassword" name="confirm_password" class="form-control" placeholder="" required >
-                                        <button class="btn btn-light" id="togglePassword" type="button">
+                                        <button class="btn btn-light" id="toggleLoginPassword" type="button">
                                             <img src="images/eye-slash.svg" alt="Toggle Password">
                                         </button>
                                     </div>
@@ -81,23 +83,24 @@
                                 </div>
 
                     
-                                <!-- <div id="schoolAccountContainer"  >
+                                <div id="schoolAccountContainer" >
                                     <div class="mb-3">
                                         <label for="schoolAccount" class="d-flex justify-content">Does your school have an account?</label>
                                         <select class="form-select" id="schoolAccount">
                                             <option value="" disabled selected>Yes/No</option>
                                             <option value="yes" >Yes</option>
                                             <option value="no">No</option>
-                                        </select>
+                                        </select> 
                                     </div>
-                                </div> -->
+                                </div>
 
-                                <div id="schoolAccountContainer"  >
+                                <div id="schoolAccountContainer" style="display: none;" class="select-school">
                                     <div class="mb-3">
                                         <label for="schoolAccount" class="d-flex justify-content">Select your school?</label>
-                                        <select class="form-select" id="schoolName" name="school_name" > 
-                                            <option value="yes" >School 1</option> 
-                                            <option value="yes" >School 2</option> 
+                                        <select class="form-select" id="school" name="school_name" > 
+                                            <option value="" selected disabled>Select School</option> 
+                                            <option value="school1" >School 1</option> 
+                                            <option value="school2" >School 2</option> 
                                             <option value="yes" >School 3</option> 
                                         </select>
                                     </div>
@@ -134,30 +137,104 @@
        
     </div>
     <script>
-        document.getElementById('userRegistrationForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        document.addEventListener('DOMContentLoaded', function () {
+            let params = new URLSearchParams(window.location.search);
+            const passwordInput = document.getElementById("password");
+            let email = params.get("email") || "";
+            if(!email && email === ""){
+                location.replace("http://localhost:5500/frontend/verify-email.html")
+            }
+            document.getElementById("email").value = email;
+            
+            fetch("http://localhost:3001/signup/schools", {
+                            method: "GET",
+                            headers: {"Content-Type": "application/json"},
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.status){
+                                let options = ``;
+                                if(data.data.length > 0){
+                                    options += "<option value='' disabled selected>Select School</option>"
+                                    data.data.forEach(schools => {
+                                        options += `<option value='${schools.school_Id}'>${schools.name}</option>`
+                                    })
+                                }else{
+                                    
+                                    options += `<option value='' disabled >No school Available</option>`
+                                } 
+                                document.getElementById("school").innerHTML = options
+                                }else{
+                                    alert(data.message)
+                                }
+                            })
+                        .catch(err => console.log(err))
 
-            const formData = new FormData(this);
-            fetch('https://rapidsuite.ng/api_holder/API/handle_user_registration.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    alert('User created successfully!');
+            passwordInput.addEventListener("input", function () {
+                const passwordValue = passwordInput.value;
+                const pattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+                const isValidPassword = pattern.test(passwordValue);
+                if (!isValidPassword) {
+                    passwordInput.setCustomValidity(
+                    "Password must contain at least 8 characters, including one letter, one number, and one special character."
+                    );
                 } else {
-                    alert(data.message);
+                    passwordInput.setCustomValidity("");
                 }
-            })
-            .catch(error => {
-                alert('There was an error creating the user.');
-                console.error('Error:', error);
+                passwordInput.reportValidity();
+    });
+            document.getElementById("schoolAccount").addEventListener("change", (event) => {
+                if(event.target.value?.toLowerCase() === "yes"){
+    
+                    document.getElementsByClassName("select-school")[0].style.display = "block"
+                }else{
+                    document.getElementsByClassName("select-school")[0].style.display = "none"
+                }
+                })
+            document.getElementById('userRegistrationForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const username = document.getElementById("userName").value
+                const password = document.getElementById("password").value
+                const confirmPassword = document.getElementById("confirmPassword").value
+                const position = document.getElementById("position").value
+                const isSchoolAccount = document.getElementById("schoolAccount").value
+                const school = document.getElementById("school").value
+                if(email !== "" && username !== "" && password !== "" && confirmPassword !== "" && position !== "" && isSchoolAccount !== ""){
+                    if(password !== confirmPassword){
+                        alert("password does not match")
+                    }else{
+                        fetch("http://localhost:3001/signup/form", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                email, username, password, confirmPassword, position, isSchoolAccount, school
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status) {
+                                alert('User created successfully!');
+                                if(isSchoolAccount === "no"){
+                                    location.replace('http://localhost:5500/frontend/admin_signup.html')
+                                }
+                            } else {
+                                alert(data.message);
+                                if(Object.keys(data).includes("redirect")) location.replace("http://localhost:5500/frontend/verify-email.html")
+                            }
+                        })
+                        .catch(error => {
+                            alert('There was an error creating the user.');
+                            console.error('Error:', error);
+                        })
+                    }
+                }else{
+                    alert("Fill in all the required fields.")
+                }
             });
-        });
+        })
     </script>
    
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<script src="js/script.js"></script>
+<!-- <script src="js/script.js"></script> -->
 </body>
 </html>

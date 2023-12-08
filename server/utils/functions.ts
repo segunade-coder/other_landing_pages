@@ -27,7 +27,7 @@ const transporter: Transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async (
-  from: string,
+  from: string = "Ush Engineering Team",
   subject: string,
   to: string,
   html: any
@@ -144,6 +144,15 @@ text-align: center;
   </p>
 </div>
 </div>`;
+
+export const verifyEmailTemplate = (OTP: number) => `
+<div style="padding:1rem;">
+<h4>Verify your email address.</h4>
+<p>To verify your email address, please use the following One-Time-Password (OTP)</p>
+<h2 style="padding: 1rem 0;">${OTP}</h2>
+<p>Do not share this OTP with anyone. This OTP is rendered invalid after 10 minutes.</p>
+</div>
+`;
 export {
   generateRandomId,
   returnJSONSuccess,

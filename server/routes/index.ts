@@ -6,6 +6,6 @@ const router = Router();
 
 router.use("/login", loginRoute);
 router.use("/rep", repRoute);
-router.use("/sign-up", signupRoute);
+router.use("/signup", signupRoute);
 
 export default router;
