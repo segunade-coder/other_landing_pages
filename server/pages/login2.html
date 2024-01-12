@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select a Plan</title>
+    <!-- Add any required styles/scripts -->
+</head>
+<body>
+    <div class="container">
+        <h2>Select a Plan</h2>
+        <div>
+            <label for="planName">Select Plan:</label>
+            <select id="planName" name="planName">
+                <option value="plan1">Plan 1</option>
+                <option value="plan2">Plan 2</option>
+                <!-- Add other plan options as needed -->
+            </select>
+        </div>
+        <div>
+            <button id="getPlanDetailsBtn">Get Plan Details</button>
+        </div>
+        <div id="planDetails"></div>
+    </div>
+
+    <script>
+        document.getElementById('getPlanDetailsBtn').addEventListener('click', function() {
+            const selectedPlan = document.getElementById('planName').value;
+
+            fetch(`https://rapidsuite.ng/api_holder/API/handle_select_plan.php?plan_name=${selectedPlan}`, {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                const planDetails = document.getElementById('planDetails');
+                planDetails.innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors if any
+            });
+        });
+    </script>
+</body>
+</html>

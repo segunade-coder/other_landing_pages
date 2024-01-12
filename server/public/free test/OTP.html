@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignUp Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="../main.css">
+    <link rel="stylesheet" href="../login.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@400;500&family=Montserrat:wght@400;600;700;800&family=Poppins:wght@300;400;500&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+
+    
+    <style>
+        .font-ere{
+            font-size: 48px;
+        }
+    </style>
+    <div class="container pt-4">
+        <div class="pri-container d-flex justify-content-between">
+            <img src="../images/Vector.png" alt="logo" id="eyeSlash">
+            <button type="button" class="btn btn-primary" type="submit" id="loginButton">Login</button>
+        </div>
+
+        <!-- OTP PAGE -->
+
+        
+
+    <!-- LOGIN PAGE -->
+        <div class="container d-block" id="loginPage">
+           
+            <div class="container text-center pt-4 login-wrapper">
+              
+            <div class="text-center mt-5">
+                <span class=" gradient pt-4 font-ere mt-5" style="font-weight: 700; " >Enter the code</span>
+            </div>  
+           
+            
+            <div class="row">
+                <div class="col-lg-2"> </div>
+                <div class="col-lg-8"> 
+                    <h6 class="text-white text-center mt-2 pt-2" style="font-weight:800;">An OTP has been sent to your mailbox, Enter the code to continue</h6>
+                    <div class="container  text-center pt-4 signup-wrapper"> 
+                         
+                    
+                        <div class=" form-container">
+                            <form action=""  >
+                              
+                                <div id="popUp" class="container popup-container   text-center pb-4">
+                                    <div class="popup-content  text-center container">
+                                        <div class="gap-2 p-2 text-center justify-content">
+                                            <div class="otp-container pt-2">
+                                                <input type="text" maxlength="1" class="otp-input"  required/>
+                                                <input type="text" maxlength="1" class="otp-input" required/>
+                                                <input type="text" maxlength="1" class="otp-input" required/>
+                                                <input type="text" maxlength="1" class="otp-input" required/>
+                                            </div>   
+                                        </div>
+                                        <div class=" text-center pt-2">
+                                            <p class="text-center" style="font-size: 12px;">Didn't get the code? click <span class="text-primary"> resend</span> in <span class="text-danger"> 00:30</span></p>
+                                        </div>
+                                        <div class="gap-2 col-6 pt-2 btn text-white opt-button" id="closeButton">
+                                            <button class="btn p-2 text-white" type="button">free test</button>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                            </form>
+                        </div>
+                    </div>
+                      
+                </div>
+                <div class="col-lg-2"> </div>
+            </div>
+
+             
+        </div>
+       
+    </div>
+       
+        
+
+    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="script.js"></script>
+</body>
+</html>

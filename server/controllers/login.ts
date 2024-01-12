@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import {
   checkIfEmpty,
   generateRandomId,
-  randomOTP,
   resetPasswordTemplate,
   returnJSONError,
   returnJSONSuccess,
@@ -30,15 +29,20 @@ export const login = async (req: Request, res: Response) => {
         if (password === dbPassword) {
           return returnJSONSuccess(res);
         } else {
-          returnJSONError(res, { message: "invalid password provided" });
+          returnJSONError(res, { message: "invalid password provided" }, 200);
         }
       } else {
-        return returnJSONError(res, {
-          message: "Invalid email address provided",
-        });
+        return returnJSONError(
+          res,
+          {
+            message: "No user with this email address.",
+          },
+          200
+        );
       }
     } catch (error) {
       console.log(error);
+      returnJSONError(res, {}, 500);
     }
   }
 };
@@ -54,6 +58,25 @@ export const resetPassword = async (req: Request, res: Response) => {
   } else {
     try {
       const OTP = `${generateRandomId()}::_${new Date().toJSON()}`;
+
+      const data = await db.query(
+        `SELECT status FROM users WHERE email = '${email}'`
+      );
+
+      if (data.length === 0) {
+        return returnJSONError(
+          res,
+          { message: "No user with this email" },
+          200
+        );
+      }
+      if (data.length > 0 && data[0]?.status === "pending") {
+        return returnJSONError(
+          res,
+          { message: "Email has not been verified" },
+          200
+        );
+      }
       let result = await sendEmail(
         "Ush Engineering Team",
         "Reset password",
@@ -66,10 +89,11 @@ export const resetPassword = async (req: Request, res: Response) => {
         );
         returnJSONSuccess(res);
       } else {
-        returnJSONError(res, { message: "Unable to send email" });
+        returnJSONError(res, { message: "Unable to send email" }, 200);
       }
     } catch (error) {
       console.log(error);
+      returnJSONError(res, { message: "Something went wrong" });
     }
   }
 };
@@ -87,7 +111,7 @@ export const reset = async (req: Request, res: Response) => {
   } = req.body;
 
   if (newPassword !== confirmNewPassword) {
-    return returnJSONError(res, { message: "Password does not match" });
+    return returnJSONError(res, { message: "Password does not match" }, 200);
   }
   let validity = checkIfEmpty({ email, code, password: newPassword });
   if (validity.length > 0) {
@@ -117,10 +141,14 @@ export const reset = async (req: Request, res: Response) => {
               );
               returnJSONSuccess(res);
             } else {
-              returnJSONError(res, { message: "Invalid Verification code" });
+              returnJSONError(
+                res,
+                { message: "Invalid Verification code" },
+                200
+              );
             }
           } else {
-            returnJSONError(res, { message: "Time has expired" });
+            returnJSONError(res, { message: "Time has expired" }, 200);
           }
         } else {
           returnJSONError(res, { message: "Something went wrong" });

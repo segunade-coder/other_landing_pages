@@ -2,9 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const signup_1 = require("../../controllers/signup");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const router = (0, express_1.Router)();
 router.post("/verify-email", signup_1.verifyEmail);
 router.post("/verify-otp", signup_1.verifyOTP);
 router.post("/form", signup_1.form);
 router.get("/schools", signup_1.schools);
+router.get("/packages", signup_1.packages);
+router.post("/admin", upload.single("school_logo"), signup_1.adminForm);
 exports.default = router;

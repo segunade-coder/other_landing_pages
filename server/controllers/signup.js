@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.form = exports.schools = exports.verifyOTP = exports.verifyEmail = void 0;
+exports.packages = exports.adminForm = exports.form = exports.schools = exports.verifyOTP = exports.verifyEmail = void 0;
 const functions_1 = require("../utils/functions");
 const mysqlApi_1 = __importDefault(require("../utils/mysqlApi"));
 const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -94,24 +94,27 @@ const schools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.schools = schools;
 const form = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e, _f;
     try {
         const { email, username, password, confirmPassword, position, isSchoolAccount, school, } = req.body;
         if ((0, functions_1.checkIfEmpty)(email, username, password, confirmPassword, position, isSchoolAccount).length === 0) {
             let verifyIfExist = yield mysqlApi_1.default.query(`SELECT username, password FROM users WHERE email = '${email}'`);
-            if (verifyIfExist[0].username !== "" &&
-                verifyIfExist[0].username !== null &&
-                verifyIfExist[0].password !== "" &&
-                verifyIfExist[0].password !== null)
+            if (((_a = verifyIfExist[0]) === null || _a === void 0 ? void 0 : _a.username) !== "" &&
+                ((_b = verifyIfExist[0]) === null || _b === void 0 ? void 0 : _b.username) !== null &&
+                ((_c = verifyIfExist[0]) === null || _c === void 0 ? void 0 : _c.username) !== undefined &&
+                ((_d = verifyIfExist[0]) === null || _d === void 0 ? void 0 : _d.password) !== "" &&
+                ((_e = verifyIfExist[0]) === null || _e === void 0 ? void 0 : _e.password) !== undefined &&
+                ((_f = verifyIfExist[0]) === null || _f === void 0 ? void 0 : _f.password) !== null)
                 return (0, functions_1.returnJSONError)(res, {
                     message: "Email already registered with another user",
-                });
+                }, 200);
             if (isSchoolAccount === "yes" && (school === "" || school === null))
                 return (0, functions_1.returnJSONError)(res, { message: "Select school" }, 200);
             if (password !== confirmPassword)
                 return (0, functions_1.returnJSONError)(res, { message: "Passwords does not match" }, 200);
             const data = yield mysqlApi_1.default.query(`SELECT email FROM users WHERE verified_email = 'success' AND email = '${email}'`);
             if (data.length > 0) {
-                yield mysqlApi_1.default.query(`UPDATE users SET username = '${username}', password = '${password}', status = '${position}', schoolID ='${school}'`);
+                yield mysqlApi_1.default.query(`UPDATE users SET username = '${username}', password = '${password}', status = '${position}', schoolID ='${school}' WHERE email = '${email}'`);
                 (0, functions_1.returnJSONSuccess)(res);
             }
             else {
@@ -131,3 +134,42 @@ const form = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.form = form;
+const adminForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _g;
+    try {
+        const buffer = (_g = req.file) === null || _g === void 0 ? void 0 : _g.buffer;
+        const isEmpty = (0, functions_1.checkIfEmpty)(req.body);
+        if (isEmpty.length === 0) {
+            const { schoolName, schoolAddress, email, number, schoolPassword, confirmPassword, schoolPopulation, } = req.body;
+            if (confirmPassword !== schoolPassword)
+                return (0, functions_1.returnJSONError)(res, { message: "Passwords does not match" });
+            mysqlApi_1.default.insert("school", {
+                name: schoolName.trim(),
+                address: schoolAddress.trim(),
+                phone: number,
+                email,
+                logo: buffer,
+                schoolPassword,
+            });
+            (0, functions_1.returnJSONSuccess)(res);
+        }
+        else {
+            (0, functions_1.returnJSONError)(res, { message: isEmpty[0] }, 200);
+        }
+    }
+    catch (error) {
+        console.log(error);
+        (0, functions_1.returnJSONError)(res, { error }, 500);
+    }
+});
+exports.adminForm = adminForm;
+const packages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield mysqlApi_1.default.query("SELECT * FROM packages");
+        (0, functions_1.returnJSONSuccess)(res, { data });
+    }
+    catch (error) {
+        (0, functions_1.returnJSONError)(res, { error });
+    }
+});
+exports.packages = packages;

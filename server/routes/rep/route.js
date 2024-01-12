@@ -17,6 +17,7 @@ const mysqlApi_1 = __importDefault(require("../../utils/mysqlApi"));
 const functions_1 = require("../../utils/functions");
 const router = (0, express_1.Router)();
 router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { firstName, lastName, schoolName, referralSource, schoolRange, desiredResult, } = req.body;
         const isEmpty = (0, functions_1.checkIfEmpty)({ "First Name": firstName }, { "Last Name": lastName }, { "School Name": schoolName }, { "School Range": schoolRange }, { Referral: referralSource }, { "Desired Output": desiredResult });
@@ -33,7 +34,25 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 desired_results: desiredResult.trim(),
             });
         }
-        (0, functions_1.returnJSONSuccess)(res);
+        const data = yield mysqlApi_1.default.query(`SELECT id FROM contact_requests WHERE first_name = '${firstName.trim()}' AND school_name = '${schoolName}' ORDER BY id DESC LIMIT 1`);
+        (0, functions_1.returnJSONSuccess)(res, { data: (_a = data[0]) === null || _a === void 0 ? void 0 : _a.id });
+    }
+    catch (error) {
+        console.log(error);
+        (0, functions_1.returnJSONError)(res, { message: error });
+    }
+}));
+router.post("/schedule", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id, date, time } = req.body;
+        const isEmpty = (0, functions_1.checkIfEmpty)({ date }, { time }, { id });
+        if (isEmpty.length) {
+            return (0, functions_1.returnJSONError)(res, { message: isEmpty[0] });
+        }
+        else {
+            yield mysqlApi_1.default.query(`UPDATE contact_requests SET time = '${time}', date = '${date}' WHERE id = ${id}`);
+            (0, functions_1.returnJSONSuccess)(res);
+        }
     }
     catch (error) {
         console.log(error);

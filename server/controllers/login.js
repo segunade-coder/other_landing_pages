@@ -33,22 +33,24 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     return (0, functions_1.returnJSONSuccess)(res);
                 }
                 else {
-                    (0, functions_1.returnJSONError)(res, { message: "invalid password provided" });
+                    (0, functions_1.returnJSONError)(res, { message: "invalid password provided" }, 200);
                 }
             }
             else {
                 return (0, functions_1.returnJSONError)(res, {
-                    message: "Invalid email address provided",
-                });
+                    message: "No user with this email address.",
+                }, 200);
             }
         }
         catch (error) {
             console.log(error);
+            (0, functions_1.returnJSONError)(res, {}, 500);
         }
     }
 });
 exports.login = login;
 const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     let { email } = req.body;
     let validity = (0, functions_1.checkIfEmpty)({ email });
     if (validity.length > 0) {
@@ -60,17 +62,25 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     else {
         try {
             const OTP = `${(0, functions_1.generateRandomId)()}::_${new Date().toJSON()}`;
+            const data = yield mysqlApi_1.default.query(`SELECT status FROM users WHERE email = '${email}'`);
+            if (data.length === 0) {
+                return (0, functions_1.returnJSONError)(res, { message: "No user with this email" }, 200);
+            }
+            if (data.length > 0 && ((_a = data[0]) === null || _a === void 0 ? void 0 : _a.status) === "pending") {
+                return (0, functions_1.returnJSONError)(res, { message: "Email has not been verified" }, 200);
+            }
             let result = yield (0, functions_1.sendEmail)("Ush Engineering Team", "Reset password", email, (0, functions_1.resetPasswordTemplate)(email, OTP));
             if (result.status) {
                 yield mysqlApi_1.default.query(`UPDATE users SET verification_code = '${OTP}' WHERE email = '${email}'`);
                 (0, functions_1.returnJSONSuccess)(res);
             }
             else {
-                (0, functions_1.returnJSONError)(res, { message: "Unable to send email" });
+                (0, functions_1.returnJSONError)(res, { message: "Unable to send email" }, 200);
             }
         }
         catch (error) {
             console.log(error);
+            (0, functions_1.returnJSONError)(res, { message: "Something went wrong" });
         }
     }
 });
@@ -78,7 +88,7 @@ exports.resetPassword = resetPassword;
 const reset = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { email, newPassword, code, confirmNewPassword, } = req.body;
     if (newPassword !== confirmNewPassword) {
-        return (0, functions_1.returnJSONError)(res, { message: "Password does not match" });
+        return (0, functions_1.returnJSONError)(res, { message: "Password does not match" }, 200);
     }
     let validity = (0, functions_1.checkIfEmpty)({ email, code, password: newPassword });
     if (validity.length > 0) {
@@ -103,11 +113,11 @@ const reset = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                             (0, functions_1.returnJSONSuccess)(res);
                         }
                         else {
-                            (0, functions_1.returnJSONError)(res, { message: "Invalid Verification code" });
+                            (0, functions_1.returnJSONError)(res, { message: "Invalid Verification code" }, 200);
                         }
                     }
                     else {
-                        (0, functions_1.returnJSONError)(res, { message: "Time has expired" });
+                        (0, functions_1.returnJSONError)(res, { message: "Time has expired" }, 200);
                     }
                 }
                 else {

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import {
   checkIfEmpty,
   randomOTP,
@@ -118,14 +119,20 @@ export const form = async (req: Request, res: Response) => {
         `SELECT username, password FROM users WHERE email = '${email}'`
       );
       if (
-        verifyIfExist[0].username !== "" &&
-        verifyIfExist[0].username !== null &&
-        verifyIfExist[0].password !== "" &&
-        verifyIfExist[0].password !== null
+        verifyIfExist[0]?.username !== "" &&
+        verifyIfExist[0]?.username !== null &&
+        verifyIfExist[0]?.username !== undefined &&
+        verifyIfExist[0]?.password !== "" &&
+        verifyIfExist[0]?.password !== undefined &&
+        verifyIfExist[0]?.password !== null
       )
-        return returnJSONError(res, {
-          message: "Email already registered with another user",
-        });
+        return returnJSONError(
+          res,
+          {
+            message: "Email already registered with another user",
+          },
+          200
+        );
       if (isSchoolAccount === "yes" && (school === "" || school === null))
         return returnJSONError(res, { message: "Select school" }, 200);
       if (password !== confirmPassword)
@@ -140,7 +147,7 @@ export const form = async (req: Request, res: Response) => {
 
       if (data.length > 0) {
         await db.query(
-          `UPDATE users SET username = '${username}', password = '${password}', status = '${position}', schoolID ='${school}'`
+          `UPDATE users SET username = '${username}', password = '${password}', status = '${position}', schoolID ='${school}' WHERE email = '${email}'`
         );
         returnJSONSuccess(res);
       } else {
@@ -158,6 +165,49 @@ export const form = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.log(error);
+    returnJSONError(res, { error });
+  }
+};
+
+export const adminForm = async (req: Request, res: Response) => {
+  try {
+    const buffer = req.file?.buffer;
+    const isEmpty = checkIfEmpty(req.body);
+    if (isEmpty.length === 0) {
+      const {
+        schoolName,
+        schoolAddress,
+        email,
+        number,
+        schoolPassword,
+        confirmPassword,
+        schoolPopulation,
+      } = req.body;
+      if (confirmPassword !== schoolPassword)
+        return returnJSONError(res, { message: "Passwords does not match" });
+      db.insert("school", {
+        name: schoolName.trim(),
+        address: schoolAddress.trim(),
+        phone: number,
+        email,
+        logo: buffer,
+        schoolPassword,
+      });
+      returnJSONSuccess(res);
+    } else {
+      returnJSONError(res, { message: isEmpty[0] }, 200);
+    }
+  } catch (error) {
+    console.log(error);
+    returnJSONError(res, { error }, 500);
+  }
+};
+export const packages = async (req: Request, res: Response) => {
+  try {
+    const data = await db.query("SELECT * FROM packages");
+
+    returnJSONSuccess(res, { data });
+  } catch (error) {
     returnJSONError(res, { error });
   }
 };

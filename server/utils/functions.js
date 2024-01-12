@@ -109,12 +109,12 @@ text-align: center;
 >
 <div style=" width: fit-content; padding: 1rem; background-color: white; border-radius: 10px;border: 1px solid #222222; margin: 0 auto;">
   <h3 style="padding-left: 0.5rem">Trouble signing in?</h3>
-  <p ">
+  <p>
     We've received a request to reset the password for this user account
   </p>
   <br />
   <a
-    href="http://localhost:5500/frontend/resetPassword.html?user=${email}&vc=${OTP}"
+    href="http://dev.app.rapidsuite.ng/reset?user=${email}&vc=${OTP}"
     style="
       padding: 0.6rem 1rem;
       background-color: #3a95c9;
@@ -127,7 +127,7 @@ text-align: center;
     >Reset your password</a
   >
   <p style="margin-top: 2.5rem; font-size: small">
-    If you didn't ask to reset your password, you can ignore this email
+    If you didn't ask to reset your password, you can ignore this email. This code becomes invalid after 10 minutes
   </p>
   <p style="font-size: small; margin-top: 0.5rem">
     Thanks <br />

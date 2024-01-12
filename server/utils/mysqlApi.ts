@@ -1,5 +1,4 @@
 import connection from "../config/conn";
-import validator from "validator";
 import mysql, { Connection } from "mysql";
 type TableType = string;
 class dbQueries {

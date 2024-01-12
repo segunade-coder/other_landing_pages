@@ -2,7 +2,6 @@ import { Request, Response, Router } from "express";
 import db from "../../utils/mysqlApi";
 import {
   checkIfEmpty,
-  escape,
   returnJSONError,
   returnJSONSuccess,
 } from "../../utils/functions";
@@ -39,8 +38,27 @@ router.post("/", async (req: Request, res: Response) => {
         desired_results: desiredResult.trim(),
       });
     }
-
-    returnJSONSuccess(res);
+    const data = await db.query(
+      `SELECT id FROM contact_requests WHERE first_name = '${firstName.trim()}' AND school_name = '${schoolName}' ORDER BY id DESC LIMIT 1`
+    );
+    returnJSONSuccess(res, { data: data[0]?.id });
+  } catch (error) {
+    console.log(error);
+    returnJSONError(res, { message: error });
+  }
+});
+router.post("/schedule", async (req: Request, res: Response) => {
+  try {
+    const { id, date, time } = req.body;
+    const isEmpty = checkIfEmpty({ date }, { time }, { id });
+    if (isEmpty.length) {
+      return returnJSONError(res, { message: isEmpty[0] });
+    } else {
+      await db.query(
+        `UPDATE contact_requests SET time = '${time}', date = '${date}' WHERE id = ${id}`
+      );
+      returnJSONSuccess(res);
+    }
   } catch (error) {
     console.log(error);
     returnJSONError(res, { message: error });
